@@ -2,13 +2,13 @@
     // Object.assign polyfill from https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
     Object.assign||Object.defineProperty(Object,"assign",{enumerable:!1,configurable:!0,writable:!0,value:function(e){"use strict";if(void 0===e||null===e)throw new TypeError("Cannot convert first argument to object");for(var r=Object(e),t=1;t<arguments.length;t++){var n=arguments[t];if(void 0!==n&&null!==n){n=Object(n);for(var o=Object.keys(Object(n)),a=0,c=o.length;c>a;a++){var i=o[a],b=Object.getOwnPropertyDescriptor(n,i);void 0!==b&&b.enumerable&&(r[i]=n[i])}}}return r}});
 
-    var sixpack = {
+    var client = {
         base_url: "http://localhost:5000",
         ip_address: null,
         user_agent: null,
         timeout: 1000,
         persist: true,
-        cookie_name: "sixpack_client_id",
+        cookie_name: "client_client_id",
         cookie_domain: null
     };
 
@@ -17,10 +17,10 @@
     if (typeof window === "undefined") {
         on_node = true;
     } else {
-        window["sixpack"] = sixpack;
+        window["client"] = client;
     }
 
-    sixpack.generate_client_id = function () {
+    client.generate_client_id = function () {
         // from http://stackoverflow.com/questions/105034
         var client_id = 'xxxxxxxx-xxxx-6xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -36,14 +36,14 @@
         return client_id;
     };
 
-    sixpack.persisted_client_id = function() {
+    client.persisted_client_id = function() {
         // http://stackoverflow.com/questions/5639346/shortest-function-for-reading-a-cookie-in-javascript
         var result;
         return (result = new RegExp('(?:^|; )' + encodeURIComponent(this.cookie_name) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
     }
 
-    sixpack.Session = function (options) {
-        Object.assign(this, sixpack, options);
+    client.Session = function (options) {
+        Object.assign(this, client, options);
 
         if (!this.client_id) {
             if (this.persist && !on_node) {
@@ -58,7 +58,7 @@
         }
     };
 
-    sixpack.Session.prototype = {
+    client.Session.prototype = {
         participate: function(experiment_name, alternatives, traffic_fraction, force, callback) {
             if (typeof traffic_fraction === "function") {
                 callback = traffic_fraction;
@@ -96,7 +96,7 @@
                           experiment: experiment_name,
                           alternatives: alternatives};
             if (!on_node && force == null) {
-                var regex = new RegExp("[\\?&]sixpack-force-" + experiment_name + "=([^&#]*)");
+                var regex = new RegExp("[\\?&]client-force-" + experiment_name + "=([^&#]*)");
                 var results = regex.exec(window.location.search);
                 if(results != null) {
                     force = decodeURIComponent(results[1].replace(/\+/g, " "));
@@ -173,8 +173,8 @@
 
         if (!on_node) {
             var cb = "callback" + (++counter);
-            params.callback = "sixpack." + cb
-            sixpack[cb] = function (res) {
+            params.callback = "client." + cb
+            client[cb] = function (res) {
                 if (!timed_out) {
                     clearTimeout(timeout_handle);
                     return callback(null, res);
@@ -248,6 +248,6 @@
 
     // export module for node or environments with module loaders, such as webpack
     if (typeof module !== "undefined" && typeof require !== "undefined") {
-        module.exports = sixpack;
+        module.exports = client;
     }
 })();
