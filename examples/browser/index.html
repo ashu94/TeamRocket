@@ -7,7 +7,7 @@
       function participate() {
         session.participate("button_color", ["red", "blue"],function (err, res) {
           if (err) throw err;
-          document.getElementById("participate").innerHTML = JSON.stringify(res);
+         //document.getElementById("participate").innerHTML = JSON.stringify(res);
 	var x = document.getElementById("button").style.background=res.alternative["name"];
         });
 	
@@ -24,7 +24,9 @@
   </head>
   <body onload="participate();">
     <h1>Client</h1>
-    <p>Response for click:</p>
+    <p>end point</p>
+    <code><pre id="participate"></pre></code>
+    <p>Response for convert:</p>
     <code><pre id="convert"></pre></code>
     <button id="button" onClick="convert();">Convert!</button>
   </body>
